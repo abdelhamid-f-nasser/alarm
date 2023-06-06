@@ -87,25 +87,6 @@ class AlarmNotification {
     return result ?? false;
   }
 
-  tz.TZDateTime nextInstanceOfTime(Time time) {
-    final DateTime now = DateTime.now();
-
-    DateTime scheduledDate = DateTime(
-      now.year,
-      now.month,
-      now.day,
-      time.hour,
-      time.minute,
-      time.second,
-    );
-
-    if (scheduledDate.isBefore(now)) {
-      scheduledDate = scheduledDate.add(const Duration(days: 1));
-    }
-
-    return tz.TZDateTime.from(scheduledDate, tz.local);
-  }
-
   /// Schedules notification at the given [dateTime].
   Future<void> scheduleAlarmNotif({
     required int id,
@@ -134,13 +115,7 @@ class AlarmNotification {
       android: androidPlatformChannelSpecifics,
     );
 
-    final zdt = nextInstanceOfTime(
-      Time(
-        dateTime.hour,
-        dateTime.minute,
-        dateTime.second,
-      ),
-    );
+    final zdt = tz.TZDateTime.from(dateTime, tz.local);
 
     final hasPermission = await requestPermission();
     if (!hasPermission) {
@@ -158,6 +133,7 @@ class AlarmNotification {
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
         uiLocalNotificationDateInterpretation:
             UILocalNotificationDateInterpretation.absoluteTime,
+        matchDateTimeComponents: DateTimeComponents.dateAndTime,
       );
       alarmPrint('Notification with id $id scheduled successfuly at $zdt');
     } catch (e) {
