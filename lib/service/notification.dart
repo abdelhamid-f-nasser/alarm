@@ -87,6 +87,18 @@ class AlarmNotification {
     return result ?? false;
   }
 
+  tz.TZDateTime nextInstanceOfTime(DateTime dateTime) {
+    DateTime scheduledDate = DateTime(
+      dateTime.year,
+      dateTime.month,
+      dateTime.day,
+      dateTime.hour,
+      dateTime.minute,
+    );
+
+    return tz.TZDateTime.from(scheduledDate, tz.local);
+  }
+
   /// Schedules notification at the given [dateTime].
   Future<void> scheduleAlarmNotif({
     required int id,
@@ -115,7 +127,7 @@ class AlarmNotification {
       android: androidPlatformChannelSpecifics,
     );
 
-    final zdt = tz.TZDateTime.from(dateTime, tz.local);
+    final zdt = nextInstanceOfTime(dateTime);
 
     final hasPermission = await requestPermission();
     if (!hasPermission) {
